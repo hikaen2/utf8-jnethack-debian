@@ -25,7 +25,7 @@
 /* #define ULTRIX */	/* define for Ultrix v3.0 or higher (but not lower) */
 			/* Use BSD for < v3.0 */
 			/* "ULTRIX" not to be confused with "ultrix" */
-/* #define SYSV	*/	/* define for System V, Solaris 2.x, newer versions */
+#define SYSV		/* define for System V, Solaris 2.x, newer versions */
 			/* of Linux */
 /* #define HPUX */	/* Hewlett-Packard's Unix, version 6.5 or higher */
 			/* use SYSV for < v6.5 */
@@ -37,7 +37,7 @@
 #define NETWORK		/* if running on a networked system */
 			/* e.g. Suns sharing a playground through NFS */
 /* #define SUNOS4 */	/* SunOS 4.x */
-/* #define LINUX */	/* Another Unix clone */
+#define LINUX		/* Another Unix clone */
 /* #define CYGWIN32 */	/* Unix on Win32 -- use with case sensitive defines */
 /* #define GENIX */	/* Yet Another Unix Clone */
 /* #define HISX */	/* Bull Unix for XPS Machines */
@@ -47,7 +47,7 @@
 			 * job control (note that AIX is SYSV otherwise)
 			 * Also define this for AIX 3.2 */
 
-/* #define TERMINFO */	/* uses terminfo rather than termcap */
+#define TERMINFO	/* uses terminfo rather than termcap */
 			/* Should be defined for most SYSV, SVR4 (including
 			 * Solaris 2+), HPUX, and Linux systems.  In
 			 * particular, it should NOT be defined for the UNIXPC
@@ -133,7 +133,7 @@
  * "extra output" method is used, but not all systems provide access to
  * a fine-grained timer.
  */
-/* #define TIMED_DELAY */	/* usleep() */
+#define TIMED_DELAY		/* usleep() */
 #endif
 
 /*

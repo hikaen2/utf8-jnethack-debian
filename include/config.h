@@ -151,7 +151,7 @@
 
 #ifdef JNETHACK
 /*#define NH_EXTENSION*/	/* Some extension for game */
-# define XI18N
+/*# define XI18N*/
 # define INSTALLCOLORMAP
 #endif
 
@@ -187,7 +187,7 @@
 /* #define COMPRESS "/usr/bin/compress" */	/* Lempel-Ziv compression */
 /* #define COMPRESS_EXTENSION ".Z" */		/* compress's extension */
 /* An example of one alternative you might want to use: */
-#define COMPRESS "/usr/bin/gzip"	/* FSF gzip compression */
+#define COMPRESS "/bin/gzip"		/* FSF gzip compression */
 #define COMPRESS_EXTENSION ".gz"	/* normal gzip extension */
 #endif
 
@@ -200,7 +200,7 @@
  *	a tar-like file, thus making a neater installation.  See *conf.h
  *	for detailed configuration.
  */
-/* #define DLB */	/* not supported on all platforms */
+#define DLB		/* not supported on all platforms */
 
 /*
  *	Defining INSURANCE slows down level changes, but allows games that

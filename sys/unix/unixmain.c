@@ -10,6 +10,7 @@
 
 /* main.c - Unix NetHack */
 
+#include "locale.h"
 #include "hack.h"
 #include "dlb.h"
 
