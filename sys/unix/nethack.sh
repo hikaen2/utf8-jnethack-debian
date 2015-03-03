@@ -6,26 +6,6 @@ export HACKDIR
 HACK=$HACKDIR/nethack
 MAXNROFPLAYERS=20
 
-# JP
-# set LC_ALL, NETHACKOPTIONS etc..
-#
-if [ "X$LC_ALL" = "X" -o "X$LC_ALL" = "XC" ] ; then
-	LC_ALL=ja_JP.eucJP
-	export LC_ALL
-fi
-if [ "X$LANG" = "X" -o "X$LANG" = "XC" ] ; then
-	LANG=ja_JP.eucJP
-	export LANG
-fi
-if [ "X$NETHACKOPTIONS" = "X" ] ; then
-	NEXTHACKOPTIONS=
-	export NETHACKOPTIONS
-fi
-if [ "X$USERFILESEARCHPATH" = "X" ] ; then
-	USERFILESEARCHPATH=$HACKDIR/%L/%N%C%S:$HACKDIR/%N%C%S:$HACKDIR/%N%S
-	export USERFILESEARCHPATH
-fi
-
 #if [ "X$DISPLAY" ] ; then
 #	xset fp+ $HACKDIR
 #fi

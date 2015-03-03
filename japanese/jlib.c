@@ -10,6 +10,9 @@
 #include <stdio.h>
 #include <ctype.h>
 #include "hack.h"
+#ifdef POSIX_ICONV
+#include <iconv.h>
+#endif
 
 int xputc(CHAR_P);
 int xputc2(int, int);
@@ -18,6 +21,16 @@ int xputc2(int, int);
 #define EUC	0
 #define SJIS	1
 #define JIS	2
+#define UTF8	3
+
+#ifdef POSIX_ICONV
+static char* ccode[]={
+    "EUC-JP-MS",
+    "CP932",
+    "ISO-2022-JP-2",
+    "UTF-8"
+};
+#endif
 
 /* internal kcode */
 /* IC=0 EUC */
@@ -48,6 +61,10 @@ int xputc2(int, int);
 
 static int	output_kcode = OUTPUT_KCODE;
 static int	input_kcode = INPUT_KCODE;
+#ifdef POSIX_ICONV
+static iconv_t	output_dsc = 0;
+static iconv_t	input_dsc = 0;
+#endif
 
 /*
 **	Kanji code library....
@@ -75,8 +92,10 @@ setkcode(c)
       output_kcode = EUC;
     else if(c == 'J' || c == 'j')
       output_kcode = JIS;
-    else if(c == 'S' || c == 's')
+    else if(c == 'S' || c == 's' || c == '9')
       output_kcode = SJIS;
+    else if(c == 'U' || c == 'u')
+      output_kcode = UTF8;
     else if(c == 'I' || c == 'i')
 #ifdef MSDOS
       output_kcode = SJIS;
@@ -87,6 +106,13 @@ setkcode(c)
 	output_kcode = IC;
     }
     input_kcode = output_kcode;
+
+#ifdef POSIX_ICONV
+    if(output_dsc)	iconv_close(output_dsc);
+    output_dsc = iconv_open(ccode[output_kcode], ccode[IC]);
+    if(input_dsc)	iconv_close(input_dsc);
+    input_dsc = iconv_open(ccode[IC] ,ccode[input_kcode]);
+#endif
 }
 /*
 **	EUC->SJIS
@@ -154,6 +180,17 @@ str2ic(s)
     }
 
     p = buf;
+#ifdef POSIX_ICONV
+    if(input_dsc){
+	size_t src_len, dst_len;
+	up = s;
+	src_len = strlen(s);
+	dst_len = sizeof(buf);
+	if(iconv(input_dsc, (char**)&up, &src_len,
+		(char**)&p, &dst_len) == (size_t)-1)
+	    goto noconvert;
+    }
+#else
     if( IC==EUC && input_kcode == SJIS ){
 	while(*s){
 	    up = s;
@@ -184,7 +221,9 @@ str2ic(s)
 	      *(p++) = *(s++);
 	}
     }
+#endif
     else{
+noconvert:
 	strcpy((char *)buf, s);
 	return (char *)buf;
     }
@@ -193,7 +232,6 @@ str2ic(s)
     return (char *)buf;
 }
 
-#ifdef SJIS_FILESYSTEM
 /*
 **	translate string to output kcode
 */
@@ -212,6 +250,17 @@ ic2str(s)
     buf[0] = '\0';
 
     p = buf;
+#ifdef POSIX_ICONV
+    if(output_dsc){
+	size_t src_len, dst_len;
+	up = s;
+	src_len = strlen(s);
+	dst_len = sizeof(buf);
+	if(iconv(output_dsc, (char**)&up, &src_len,
+		(char**)&p, &dst_len) == (size_t)-1)
+	    goto noconvert;
+    }
+#else
     if( IC==EUC && output_kcode == SJIS ){
 	while(*s){
 	    up = s;
@@ -225,7 +274,9 @@ ic2str(s)
 	      *(p++) = (unsigned char)*(s++);
 	}
     }
+#endif
     else{
+noconvert:
 	strcpy((char *)buf, s);
 	return (char *)buf;
     }
@@ -233,7 +284,100 @@ ic2str(s)
     *(p++) = '\0';
     return (char *)buf;
 }
-#endif /* MSDOS */
+
+/* CP437 to Unicode mapping according to the Unicode Consortium */
+static ushort cp437[] =
+{
+	0x0020, 0x263A, 0x263B, 0x2665, 0x2666, 0x2663, 0x2660, 0x2022,
+	0x25D8, 0x25CB, 0x25D9, 0x2642, 0x2640, 0x266A, 0x266B, 0x263C,
+	0x25BA, 0x25C4, 0x2195, 0x203C, 0x00B6, 0x00A7, 0x25AC, 0x21A8,
+	0x2191, 0x2193, 0x2192, 0x2190, 0x221F, 0x2194, 0x25B2, 0x25BC,
+	0x0020, 0x0021, 0x0022, 0x0023, 0x0024, 0x0025, 0x0026, 0x0027,
+	0x0028, 0x0029, 0x002a, 0x002b, 0x002c, 0x002d, 0x002e, 0x002f,
+	0x0030, 0x0031, 0x0032, 0x0033, 0x0034, 0x0035, 0x0036, 0x0037,
+	0x0038, 0x0039, 0x003a, 0x003b, 0x003c, 0x003d, 0x003e, 0x003f,
+	0x0040, 0x0041, 0x0042, 0x0043, 0x0044, 0x0045, 0x0046, 0x0047,
+	0x0048, 0x0049, 0x004a, 0x004b, 0x004c, 0x004d, 0x004e, 0x004f,
+	0x0050, 0x0051, 0x0052, 0x0053, 0x0054, 0x0055, 0x0056, 0x0057,
+	0x0058, 0x0059, 0x005a, 0x005b, 0x005c, 0x005d, 0x005e, 0x005f,
+	0x0060, 0x0061, 0x0062, 0x0063, 0x0064, 0x0065, 0x0066, 0x0067,
+	0x0068, 0x0069, 0x006a, 0x006b, 0x006c, 0x006d, 0x006e, 0x006f,
+	0x0070, 0x0071, 0x0072, 0x0073, 0x0074, 0x0075, 0x0076, 0x0077,
+	0x0078, 0x0079, 0x007a, 0x007b, 0x007c, 0x007d, 0x007e, 0x2302,
+	0x00c7, 0x00fc, 0x00e9, 0x00e2, 0x00e4, 0x00e0, 0x00e5, 0x00e7,
+	0x00ea, 0x00eb, 0x00e8, 0x00ef, 0x00ee, 0x00ec, 0x00c4, 0x00c5,
+	0x00c9, 0x00e6, 0x00c6, 0x00f4, 0x00f6, 0x00f2, 0x00fb, 0x00f9,
+	0x00ff, 0x00d6, 0x00dc, 0x00a2, 0x00a3, 0x00a5, 0x20a7, 0x0192,
+	0x00e1, 0x00ed, 0x00f3, 0x00fa, 0x00f1, 0x00d1, 0x00aa, 0x00ba,
+	0x00bf, 0x2310, 0x00ac, 0x00bd, 0x00bc, 0x00a1, 0x00ab, 0x00bb,
+	0x2591, 0x2592, 0x2593, 0x2502, 0x2524, 0x2561, 0x2562, 0x2556,
+	0x2555, 0x2563, 0x2551, 0x2557, 0x255d, 0x255c, 0x255b, 0x2510,
+	0x2514, 0x2534, 0x252c, 0x251c, 0x2500, 0x253c, 0x255e, 0x255f,
+	0x255a, 0x2554, 0x2569, 0x2566, 0x2560, 0x2550, 0x256c, 0x2567,
+	0x2568, 0x2564, 0x2565, 0x2559, 0x2558, 0x2552, 0x2553, 0x256b,
+	0x256a, 0x2518, 0x250c, 0x2588, 0x2584, 0x258c, 0x2590, 0x2580,
+	0x03b1, 0x00df, 0x0393, 0x03c0, 0x03a3, 0x03c3, 0x00b5, 0x03c4,
+	0x03a6, 0x0398, 0x03a9, 0x03b4, 0x221e, 0x03c6, 0x03b5, 0x2229,
+	0x2261, 0x00b1, 0x2265, 0x2264, 0x2320, 0x2321, 0x00f7, 0x2248,
+	0x00b0, 0x2219, 0x00b7, 0x221a, 0x207f, 0x00b2, 0x25a0, 0x00a0
+};
+
+static char *
+glyph_to_utf8str(int c, char *buf)
+{
+    ushort code;
+
+    /* Convert selected code to UTF-8 */
+    if(iflags.IBMgraphics)
+	code = cp437[c & 0xff];
+    else
+	code = c & 0xff; /* iso8859-1 charactor */
+
+    /* iconvで制御コードの範囲が変換されないため自力でエンコードする */
+    if (code < 0x80) {
+	*(buf++) = (char)code;
+    } else if (code < 0x0800) {
+	*(buf++) = (char)(0xC0 | ((code>> 6) & 0x1F));
+	*(buf++) = (char)(0x80 | ( code      & 0x3F));
+    } else {
+	*(buf++) = (char)(0xE0 | ((code>>12) & 0x1F));
+	*(buf++) = (char)(0x80 | ((code>> 6) & 0x3F));
+	*(buf++) = (char)(0x80 | ( code      & 0x3F));
+    }
+    *buf = '\0';
+    return buf;
+}
+
+/*
+**	translate glyph code (cp437) string to output kcode
+*/
+const char *
+gc2str(s)
+     const char *s;
+{
+    static unsigned char buf[1024];
+    const unsigned char *up;
+    unsigned char *p;
+
+    if(!s)
+      return s;
+
+    up = s;
+    p = buf;
+    if(output_kcode==UTF8){
+	while(*up){
+	    p = glyph_to_utf8str(*(up++), p);
+	}
+    }
+    else{
+notsupport:
+	strcpy((char *)buf, s);
+	return (char *)buf;
+    }
+
+    *(p++) = '\0';
+    return (char *)buf;
+}
 
 /*
 **	primitive function
@@ -364,6 +508,22 @@ jbuffer(
 	c2 = c;
 
 	if(IC == output_kcode)
+#ifdef POSIX_ICONV
+	    f2(c1, c2);
+	else if(output_dsc){
+	    char buf_in[2], buf_out[16];
+	    char *src=buf_in, *dst=buf_out;
+	    size_t src_len=2, dst_len=sizeof(buf_out);
+	    *buf_in=c1; *(buf_in+1)=c2;
+	    if(iconv(output_dsc, &src, &src_len, &dst, &dst_len) == (size_t)-1){
+		f2(c1,c2);
+	    }else{
+		*dst = '\0';
+		dst = buf_out;
+		while(*dst) f1(*(dst++));
+	    }
+	}
+#else
 	  ;
 	else if(IC == EUC){
 	    switch(output_kcode){
@@ -400,6 +560,7 @@ jbuffer(
 	    }
 	}
 	f2(c1, c2);
+#endif
 	buf[0] = 0;
 	return 2;
     }
@@ -430,6 +591,14 @@ cbuffer(
     if(!f1) f1 = tty_cputc;
     if(!f2) f2 = tty_cputc2;
 
+#ifdef POSIX_ICONV
+    if(output_kcode == UTF8)
+	if(c){
+	    f1(c);
+	    return 1;
+	}
+    else
+#endif
     if(!(buf[0]) && is_kanji(c)){
 	buf[1] = c;
 	++buf[0];
@@ -451,14 +620,27 @@ cbuffer(
 void
 jputchar(int c)
 {
-    static unsigned int buf[2];
-    jbuffer((unsigned int)(c & 0xff), buf, NULL, NULL, NULL);
+    jbuffer((unsigned int)(c & 0xff), NULL, NULL, NULL, NULL);
 }
 void
 cputchar(int c)
 {
-    static unsigned int buf[2];
-    cbuffer((unsigned int)(c & 0xff), buf, NULL, NULL, NULL);
+    cbuffer((unsigned int)(c & 0xff), NULL, NULL, NULL, NULL);
+}
+
+/* print out glyph (cp437) character to tty */
+void
+gputchar(int c)
+{
+    char buf[6];
+    char *str = buf;
+
+    if (output_kcode == UTF8) {
+	glyph_to_utf8str(c, buf);
+	while(*str) tty_cputc(*(str++));
+    } else {
+	tty_cputc((unsigned int)(c&0xFF));
+    }
 }
 
 void

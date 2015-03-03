@@ -2589,7 +2589,7 @@ int in_ch;
 #   if 0 /*JP*/
 	(void) putchar(ch);
 #   else
-	(void) cputchar(ch);
+	(void) gputchar(ch);
 #   endif
 #endif
     } else if (ch & 0x80) {
@@ -2610,7 +2610,7 @@ int in_ch;
 # if 0 /*JP*/
 	(void) putchar(ch);
 # else
-	(void) jputchar(ch);
+	(void) cputchar(ch);
 # endif
     }
 

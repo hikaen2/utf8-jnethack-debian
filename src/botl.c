@@ -321,7 +321,8 @@ bot2()
 /*JP
 		"%c:%-2ld HP:%d(%d) Pw:%d(%d) AC:%-2d", oc_syms[COIN_CLASS],
 */
-		"%c:%-2ld ÂÎ:%d(%d) Ëâ:%d(%d) ³»:%-2d", oc_syms[COIN_CLASS],
+		"%c:%-2ld ÂÎ:%d(%d) Ëâ:%d(%d) ³»:%-2d",
+		(oc_syms[COIN_CLASS]&0x80)?'$':oc_syms[COIN_CLASS],
 #ifndef GOLDOBJ
 		u.ugold,
 #else

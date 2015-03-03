@@ -65,8 +65,12 @@ char *argv[];
 #endif
 	boolean exact_username;
 
-#ifdef XI18N
-	setlocale(LC_ALL, "");
+#if 1 /*JP*/
+	char *locale, *dot;
+	locale = setlocale(LC_ALL, "");
+	dot = strchr(locale,'.');
+	if(dot) setkcode(*(dot+1));
+	setlocale(LC_ALL, "ja_JP.eucJP");
 #endif
 #if defined(__APPLE__)
 	/* special hack to change working directory to a resource fork when
@@ -144,7 +148,6 @@ char *argv[];
 		chdirx(dir,0);
 #endif
 #if 1 /*JP*/
-		setkcode('I');
 		initoptions();
 		init_jtrns();
 		prscore(argc, argv);
@@ -380,11 +383,19 @@ char *argv[];
 #endif
 		case 'u':
 			if(argv[0][2])
+#if 0 /*JP*/
 			  (void) strncpy(plname, argv[0]+2, sizeof(plname)-1);
+#else
+			  (void) strncpy(plname, str2ic(argv[0]+2), sizeof(plname)-1);
+#endif
 			else if(argc > 1) {
 			  argc--;
 			  argv++;
+#if 0 /*JP*/
 			  (void) strncpy(plname, argv[0], sizeof(plname)-1);
+#else
+			  (void) strncpy(plname, str2ic(argv[0]), sizeof(plname)-1);
+#endif
 			} else
 				raw_print("Player name expected after -u");
 			break;

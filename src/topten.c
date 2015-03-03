@@ -982,8 +982,21 @@ char **argv;
 		players = &player0;
 #endif
 	} else {
+#if 0 /*JP*/
 		playerct = --argc;
 		players = (const char **)++argv;
+#else
+		int i;
+		playerct = --argc;
+		++argv;
+		players = (const char **)alloc(sizeof(char*)*argc+1);
+		for(i=0;i<argc;i++){
+		    char *p = (char*)str2ic(argv[i]);
+		    players[i]=(char*)alloc(strlen(p)+1);
+		    strcpy((void*)players[i],p);
+		}
+		players[i] = NULL;
+#endif
 	}
 	raw_print("");
 

@@ -132,14 +132,12 @@ redotoplin(str)
 {
 	int otoplin = ttyDisplay->toplin;
 	home();
-#if 0 /*JP*/
-	if(*str & 0x80) {
+	if((*str & 0x80) && (*(str+1) == ' ')) {
 		/* kludge for the / command, the only time we ever want a */
 		/* graphics character on the top line */
 		g_putch((int)*str++);
 		ttyDisplay->curx++;
 	}
-#endif
 	end_glyphout();	/* in case message printed during graphics output */
 	putsyms(str);
 	cl_end();

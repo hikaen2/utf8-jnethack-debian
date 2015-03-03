@@ -213,7 +213,10 @@ register char *s;
 	register unsigned char *lp;
 #endif
 
-#ifdef SJIS_FILESYSTEM
+#if 0 /*JP*/
+	while((lp=index(s, '.')) || (lp=index(s, '/')) || (lp=index(s,' ')))
+		*lp = '_';
+#else
 	lp = (unsigned char *)ic2str( s );
 	strcpy(s, lp);
 	for (lp = s; *lp; lp++){
@@ -225,9 +228,6 @@ register char *s;
 		*lp = '_';
 	    }
 	}
-#else
-	while((lp=index(s, '.')) || (lp=index(s, '/')) || (lp=index(s,' ')))
-		*lp = '_';
 #endif
 #if defined(SYSV) && !defined(AIX_31) && !defined(SVR4) && !defined(LINUX) && !defined(__APPLE__)
 	/* avoid problems with 14 character file name limit */

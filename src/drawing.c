@@ -330,7 +330,6 @@ const struct symdef defsyms[MAXPCHARS] = {
 void NDECL((*ibmgraphics_mode_callback)) = 0;	/* set in tty_start_screen() */
 #endif /* PC9800 */
 
-#if 0/*JP*/
 static uchar ibm_graphics[MAXPCHARS] = {
 /* 0*/	g_FILLER(S_stone),
 	0xb3,	/* S_vwall:	meta-3, vertical rule */
@@ -425,7 +424,6 @@ static uchar ibm_graphics[MAXPCHARS] = {
 /*90*/	g_FILLER(S_explode8),
 	g_FILLER(S_explode9)
 };
-#endif
 #endif  /* ASCIIGRAPH */
 
 #ifdef TERMLIB
@@ -681,7 +679,6 @@ int gr_set_flag;
 	    if (ascgraphics_mode_callback) (*ascgraphics_mode_callback)();
 #endif
 	    break;
-#if 0 /*JP*/
 #ifdef ASCIIGRAPH
 	case IBM_GRAPHICS:
 /*
@@ -699,7 +696,6 @@ int gr_set_flag;
 #endif
 	    break;
 #endif /* ASCIIGRAPH */
-#endif /*JP*/
 #ifdef TERMLIB
 	case DEC_GRAPHICS:
 /*
@@ -751,7 +747,6 @@ static const uchar r_oc_syms[MAXOCLASSES] = {
 	VENOM_SYM
 };
 
-#if 0 /*JP*/
 # ifdef ASCIIGRAPH
 /* Rogue level graphics.  Under IBM graphics mode, use the symbols that were
  * used for Rogue on the IBM PC.  Unfortunately, this can't be completely
@@ -762,7 +757,7 @@ static const uchar r_oc_syms[MAXOCLASSES] = {
 static const uchar IBM_r_oc_syms[MAXOCLASSES] = {	/* a la EPYX Rogue */
 /* 0*/	'\0',
 	ILLOBJ_SYM,
-#  if defined(MSDOS) || defined(OS2) || ( defined(WIN32) && !defined(MSWIN_GRAPHICS) )
+#  if defined(POSIX_ICONV) || defined(MSDOS) || defined(OS2) || ( defined(WIN32) && !defined(MSWIN_GRAPHICS) )
 	0x18,			/* weapon: up arrow */
 /*	0x0a, */ ARMOR_SYM,	/* armor:  Vert rect with o */
 /*	0x09, */ RING_SYM,	/* ring:   circle with arrow */
@@ -795,7 +790,6 @@ static const uchar IBM_r_oc_syms[MAXOCLASSES] = {	/* a la EPYX Rogue */
 	VENOM_SYM
 };
 # endif /* ASCIIGRAPH */
-#endif /*JP*/
 
 void
 assign_rogue_graphics(is_rlevel)
@@ -816,15 +810,13 @@ boolean is_rlevel;
 	/* Use a loop: char != uchar on some machines. */
 	for (i = 0; i < MAXMCLASSES; i++)
 	    monsyms[i] = def_monsyms[i];
-#if 0 /*JP*/
-# if defined(ASCIIGRAPH) && !defined(MSWIN_GRAPHICS)
+#if defined(ASCIIGRAPH) && !defined(MSWIN_GRAPHICS)
 	if (iflags.IBMgraphics
 #  if defined(USE_TILES) && defined(MSDOS)
 		&& !iflags.grmode
 #  endif
 		)
 	    monsyms[S_HUMAN] = 0x01; /* smiley face */
-# endif
 #endif
 	for (i = 0; i < MAXPCHARS; i++)
 	    showsyms[i] = defsyms[i].sym;
@@ -835,18 +827,15 @@ boolean is_rlevel;
  * all of this info and to simply initialize it via a for() loop like r_oc_syms.
  */
 
-#if 0 /*JP*/
-# ifdef ASCIIGRAPH
+#ifdef ASCIIGRAPH
 	if (!iflags.IBMgraphics
 #  if defined(USE_TILES) && defined(MSDOS)
 		|| iflags.grmode
 #  endif
 				) {
-# endif
-#endif /*JP*/
+#endif
 	    showsyms[S_vodoor]  = showsyms[S_hodoor]  = showsyms[S_ndoor] = '+';
 	    showsyms[S_upstair] = showsyms[S_dnstair] = '%';
-#if 0 /*JP*/
 # ifdef ASCIIGRAPH
 	} else {
 	    /* a la EPYX Rogue */
@@ -895,10 +884,8 @@ boolean is_rlevel;
 #endif
 	}
 #endif /* ASCIIGRAPH */
-#endif /* JP */
 
 	for (i = 0; i < MAXOCLASSES; i++) {
-#if 0 /* JP */
 #ifdef ASCIIGRAPH
 	    if (iflags.IBMgraphics
 # if defined(USE_TILES) && defined(MSDOS)
@@ -908,7 +895,6 @@ boolean is_rlevel;
 		oc_syms[i] = IBM_r_oc_syms[i];
 	    else
 #endif /* ASCIIGRAPH */
-#endif /* JP */
 		oc_syms[i] = r_oc_syms[i];
 	}
 #if defined(MSDOS) && defined(USE_TILES)

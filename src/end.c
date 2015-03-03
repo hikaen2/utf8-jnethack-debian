@@ -1232,12 +1232,14 @@ int status;
 
 #if 1 /*JP*/
 	jputchar('\0');	/* reset terminal */
+/*
 	if (iflags.DECgraphics){
 	  putchar(033);
 	  putchar('$');
 	  putchar(')');
 	  putchar('B');
 	}
+*/
 #endif
 	nethack_exit(status);
 }
